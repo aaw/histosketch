@@ -3,21 +3,27 @@
 // Algorithm" in Journal of Machine Learning Research 11
 // (http://www.jmlr.org/papers/volume11/ben-haim10a/ben-haim10a.pdf).
 //
-// Modifications from their original description in this implementation include:
-// - Adaptation of the "Uniform" function described in the paper into a
-//   "Quantile" function here.
-// - Allowing initial set of centroids to be bootstrapped with the optimal 1-D
-//   centroid decomposition based on squared distance to centroid mean via
-//   dynamic programming (see Bellman's "A note on cluster analysis and dynamic
-//   programming" in Mathematical Biosciences, 18(3-4):311 – 312, 1973 or
-//   Haizhou Wang and Mingzhou Song's "Ckmeans.1d.dp: Optimal k-means clustering
-//   in one dimension by dynamic programming" in R Journal, 3(2), 2011
-//   (http://journal.r-project.org/archive/2011-2/RJournal_2011-2_Wang+Song.pdf)
-// - Storing the min and max value for better estimation of extreme quantiles.
-// - Returning exact values for Sum and Quantile when they're known (before
-//   any centroid merging happens).
-// - Improvements in handling some boundary conditions.
-
+// Modifications from Ben-Haim and Tom-Tov's original description in this
+// implementation include:
+//
+//   * Adaptation of the "Uniform" function described in the paper into a
+//     "Quantile" function here.
+//
+//   * Allowing initial set of centroids to be bootstrapped with the optimal
+//     1-D centroid decomposition based on squared distance to centroid mean
+//     via dynamic programming (see Bellman's "A note on cluster analysis and
+//     dynamic programming" in Mathematical Biosciences, 18(3-4):311 – 312,
+//     1973 or Haizhou Wang and Mingzhou Song's "Ckmeans.1d.dp: Optimal k-means
+//     clustering in one dimension by dynamic programming" in R Journal, 3(2),
+//     2011 (http://journal.r-project.org/archive/2011-2/RJournal_2011-2_Wang+Song.pdf)
+//
+//   * Storing the min and max value for better estimation of extreme
+//     quantiles.
+//
+//   * Returning exact values for Sum and Quantile when they're known (before
+//     any centroid merging happens).
+//
+//   * Improvements in handling some boundary conditions.
 package histosketch
 
 import (

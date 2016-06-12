@@ -3,16 +3,17 @@ histosketch
 
 A golang implementation of the streaming histogram sketch described in Ben-Haim
 and Tom-Tov's [A Streaming Parallel Decision Tree Algorithm](http://www.jmlr.org/papers/volume11/ben-haim10a/ben-haim10a.pdf).
-The sketch has a fixed size and offers quick estimates of quantiles and counts of
-observed values below a threshold.
+The sketch has a fixed size and offers quick estimates of both quantiles and
+counts of observed values below a threshold.
 
-Useful for recording and analyzing a histogram from a stream of data or in map/reduce computations.
+histosketch is useful for recording and analyzing a histogram from a stream of
+data in real time or in map/reduce computations.
 
 How it Works
 ------------
 
 Each sketch is an ordered list of centroids. Each centroid represents a multiset of points and is stored
-as an average value and a count. For example, a centroid for the multiset {4,4,5,5} would have an average of 4.5
+as an average value and a count. A centroid for the multiset {4,4,5,5} would consist of an average of 4.5
 and a count of 4.
 
 When a value is added to the sketch, it's added as a centroid of count 1 and inserted into the
@@ -33,8 +34,7 @@ solving a quadratic.
 Examples
 --------
 
-Create a histogram sketch by specifying a maximum number of centroids. The sketch uses two `float64`s to
-represent each centroid, so the resulting sketch will take up about 1 KB for every 8 centroids.
+Create a histogram sketch by specifying a maximum number of centroids:
 
     h := histosketch.New(32)
 
@@ -56,7 +56,7 @@ Once you've created a sketch, add some values. You can add individual values wit
     h.Add(100.0)
     h.Add(101.0)
 
-or multiple data values in one call with `AddMany`:
+or add multiple data values in one call with `AddMany`:
 
     h.AddMany(102.0, 2)  // Same effect as two calls to s.Add(102.0)
 
@@ -66,7 +66,7 @@ After you've added some values, you can get quantile estimates:
     // Returns estimate of the least value greater than 99% of values added.
     h.Quantile(0.99)
 
-Or get estimates of the number of elements observed that are at most given value:
+Or get estimates of the number of elements observed that are less than or equal to a given value:
 
     // Returns estimate of the number of values added that are at most 123.
     h.Sum(123)
@@ -82,10 +82,15 @@ You can serialize a sketch as a [gob](https://golang.org/pkg/encoding/gob/). See
 Choosing a maximum number of centroids
 --------------------------------------
 
-There aren't any good theoretical guarantees on the accuracy of the Ben-Haim-Tom-Tov sketch.
+There aren't any good theoretical guarantees on the accuracy of the Ben-Haim/Tom-Tov sketch.
 However, given a fixed amount of space to store a sketch of a histogram and know upfront knowledge
 of what Quantile/Sum queries need to be serviced, the centroid decomposition and linear interpolation
 between centroids based on weight is a very reasonable model.
+
+A histosketch uses two `float64`s to represent each centroid, so the sketch will take up about
+a kilobyte per 60 centroids. As some of the following examples will show, you probably won't
+need much more than that to get good approximate quantiles. If you find yourself needing on the
+order of thousands of centroids, you probably want to use something other than histosketch.
 
 This repo contains a utility `graphs` that will generate gnuplot
 graphs of the error involved in various scenarios. You can use this utility to play around with
@@ -147,7 +152,7 @@ than the quantile error resulting from calling `New` and then `Add`ing values on
 Alternatives
 ------------
 
-Some notable alternatives to the Ben-Haim-Tom-Tov sketch for general-purpose histogram sketches are the
+Some notable alternatives to the Ben-Haim/Tom-Tov sketch for general-purpose histogram sketches are the
 [q-digest](http://www.inf.fu-berlin.de/lehre/WS11/Wireless/papers/AgrQdigest.pdf) and the
 [t-digest](https://github.com/tdunning/t-digest/raw/master/docs/t-digest-paper/histo.pdf).
 
@@ -155,10 +160,10 @@ One advantage of q-digests is that there are known theoretical bounds on their e
 of q-digests requires expensive compression and pruning operations and q-digests only accept integer values.
 In addition, q-digests grow with their input and are not meant to be a fixed-size sketch.
 
-Like the Ben-Haim-Tom-Tov sketch, the t-digest is represented by an ordered list of centroids and can
+Like the Ben-Haim/Tom-Tov sketch, the t-digest is represented by an ordered list of centroids and can
 handle floating point values. The t-digest optimizes for accuracy in extreme quantiles
 by restricting the size of centroids based on the quantile value, so it most likely does a better job
-of estimating extreme quantiles than the Ben-Haim-Tom-Tov sketch. However, because of this optimization,
+of estimating extreme quantiles than the Ben-Haim/Tom-Tov sketch. However, because of this optimization,
 the t-digest does not support fixed-size sketches. The extreme quantile optimization also
 makes insertion a little more complicated, since periodic re-shuffling is needed for some input
 sequences.
