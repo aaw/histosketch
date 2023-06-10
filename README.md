@@ -167,8 +167,3 @@ of estimating extreme quantiles than the Ben-Haim/Tom-Tov sketch. However, becau
 the t-digest does not support fixed-size sketches. The extreme quantile optimization also
 makes insertion a little more complicated, since periodic re-shuffling is needed for some input
 sequences.
-
-Installation
-------------
-
-    go get github.com/aaw/histosketch

@@ -23,7 +23,7 @@
 package main
 
 import (
-	"bitbucket.org/aaron.windsor/histosketch"
+	"github.com/aaw/histosketch"
 	"bufio"
 	"flag"
 	"fmt"
